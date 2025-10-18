@@ -15,7 +15,7 @@ export const registerUser = async (req, res)=>{
     try {
         const {name, email, password} = req.body
 
-        if(!name || !email || !password || password.length < 8){
+        if(!name || !email || !password || password.length < 8){                      //
             return res.json({success: false, message: 'Fill all the fields'})
         }
 

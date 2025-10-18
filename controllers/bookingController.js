@@ -4,12 +4,21 @@ import Car from "../models/Car.js";
 
 // Function to Check Availability of Car for a given Date
 const checkAvailability = async (car, pickupDate, returnDate)=>{
-    const bookings = await Booking.find({
-        car,
-        pickupDate: {$lte: returnDate},
-        returnDate: {$gte: pickupDate},
-    })
-    return bookings.length === 0;
+    // normalize dates
+    // Log for debugging
+    try{
+        const bookings = await Booking.find({
+            car,
+            pickupDate: {$lte: returnDate},
+            returnDate: {$gte: pickupDate},
+        })
+        // debug
+        console.log(`[checkAvailability] car=${car} pickup=${pickupDate} return=${returnDate} overlapping=${bookings.length}`)
+        return bookings.length === 0;
+    }catch(err){
+        console.log('[checkAvailability] error', err.message)
+        throw err
+    }
 }
 
 // API to Check Availability of Cars for the given Date and location
@@ -18,16 +27,18 @@ export const checkAvailabilityOfCar = async (req, res)=>{
         const {location, pickupDate, returnDate} = req.body
 
         // fetch all available cars for the given location
-        const cars = await Car.find({location, isAvaliable: true})
+        // note: schema stores `isAvaliable` (misspelled) — use that field here
+        const cars = await Car.find({ location, isAvaliable: true })
 
         // check car availability for the given date range using promise
-        const availableCarsPromises = cars.map(async (car)=>{
-           const isAvailable = await checkAvailability(car._id, pickupDate, returnDate)
-           return {...car._doc, isAvailable: isAvailable}
-        })
+          const availableCarsPromises = cars.map(async (car)=>{
+              const isAvailable = await checkAvailability(car._id, pickupDate, returnDate)
+              // return normalized response with isAvailable boolean
+              return {...car._doc, isAvailable}
+          })
 
-        let availableCars = await Promise.all(availableCarsPromises);
-        availableCars = availableCars.filter(car => car.isAvailable === true)
+    let availableCars = await Promise.all(availableCarsPromises);
+    availableCars = availableCars.filter(car => car.isAvailable === true)
 
         res.json({success: true, availableCars})
 
@@ -43,12 +54,17 @@ export const createBooking = async (req, res)=>{
         const {_id} = req.user;
         const {car, pickupDate, returnDate} = req.body;
 
+        console.log(`[createBooking] user=${_id} car=${car} pickup=${pickupDate} return=${returnDate}`)
         const isAvailable = await checkAvailability(car, pickupDate, returnDate)
         if(!isAvailable){
             return res.json({success: false, message: "Car is not available"})
         }
 
         const carData = await Car.findById(car)
+
+        if(!carData){
+            return res.json({success: false, message: 'Car not found'})
+        }
 
         // Calculate price based on pickupDate and returnDate
         const picked = new Date(pickupDate);
