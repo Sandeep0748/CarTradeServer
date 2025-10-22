@@ -55,6 +55,21 @@ export const createBooking = async (req, res)=>{
         const {car, pickupDate, returnDate} = req.body;
 
         console.log(`[createBooking] user=${_id} car=${car} pickup=${pickupDate} return=${returnDate}`)
+        // Prevent duplicate booking for same user, car, and overlapping dates
+        const existingBooking = await Booking.findOne({
+            car,
+            user: _id,
+            $or: [
+                {
+                    pickupDate: { $lte: returnDate },
+                    returnDate: { $gte: pickupDate }
+                }
+            ]
+        });
+        if (existingBooking) {
+            return res.json({ success: false, message: "You have already booked this car for the selected dates." });
+        }
+
         const isAvailable = await checkAvailability(car, pickupDate, returnDate)
         if(!isAvailable){
             return res.json({success: false, message: "Car is not available"})
@@ -72,9 +87,9 @@ export const createBooking = async (req, res)=>{
         const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
         const price = carData.pricePerDay * noOfDays;
 
-        await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price})
+        const booking = await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price, status: 'pending'})
 
-        res.json({success: true, message: "Booking Created"})
+        res.json({success: true, message: "Booking Created", booking})
 
     } catch (error) {
         console.log(error.message);

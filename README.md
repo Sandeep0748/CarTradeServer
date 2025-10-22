@@ -62,3 +62,12 @@ The backend is built with **Node.js, Express.js, and MongoDB**, following RESTfu
    ```bash
    git clone https://github.com/yourusername/cartrade-backend.git
    cd cartrade-backend
+
+## Node.js version
+
+Vite (frontend) requires Node.js >= 20.19.0 (or use >=22.12.0). Your development machine currently has Node.js 20.17.0. On Windows you can upgrade using:
+
+- nvm-windows: https://github.com/coreybutler/nvm-windows ; then `nvm install 22.12.0` and `nvm use 22.12.0`.
+- Or download the official installer from https://nodejs.org and choose 22.12.0 or later.
+
+There is a `.nvmrc` file at the repo root set to `22.12.0`.
