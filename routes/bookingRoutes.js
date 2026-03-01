@@ -5,7 +5,7 @@ import { protect } from "../middleware/auth.js";
 const bookingRouter = express.Router();
 
 bookingRouter.post('/check-availability', checkAvailabilityOfCar)
-bookingRouter.post('/create', protect, createBooking)
+bookingRouter.post('/create', protect, createBooking)                       // auth.js use to verify token before creating booking*
 bookingRouter.get('/user', protect, getUserBookings)
 bookingRouter.get('/owner', protect, getOwnerBookings)
 bookingRouter.post('/change-status', protect, changeBookingStatus)

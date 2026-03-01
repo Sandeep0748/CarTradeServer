@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 // Protect middleware: verifies JWT and attaches user to req
+
+// auth.js = use to check ucookies varification   *
 export const protect = async (req, res, next) => {
     try {
         let token = req.headers.authorization;

@@ -31,7 +31,7 @@ export const addCar = async (req, res)=>{
             file: fileBuffer,
             fileName: imageFile.originalname,
             folder: '/cars'
-        })
+        }) 
 
         // optimization through imagekit URL transformation
         var optimizedImageUrl = imagekit.url({

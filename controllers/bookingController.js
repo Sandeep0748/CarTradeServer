@@ -19,7 +19,7 @@ const checkAvailability = async (car, pickupDate, returnDate)=>{
         console.log('[checkAvailability] error', err.message)
         throw err
     }
-}
+} 
 
 // API to Check Availability of Cars for the given Date and location
 export const checkAvailabilityOfCar = async (req, res)=>{
